@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 0 JavaScript Refresher</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Task 0. JavaScript Refresher</h1>
+  <p>My JavaScript practice before React. All results come from script.js.</p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. Variables and Data Types</h2>
+  <p class="task">A student: <code>name</code>, <code>age</code>, <code>isActive</code>, <code>courses</code>, <code>address</code>, plus <code>null</code> and <code>undefined</code>.</p>
+  <div class="out" id="out1"></div>
+  <div class="note">
+    <p><code>let</code> can get a new value later. <code>const</code> cannot. But if a const holds an object, I can still change what is inside it. Only the box itself is locked.</p>
+    <p><code>typeof null</code> gives <code>"object"</code>. This is an old mistake in JavaScript. They keep it so old sites still work.</p>
+    <p>Primitive types: string, number, boolean, null, undefined, symbol, bigint. Objects, arrays and functions are not primitives.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2. Arrays</h2>
+  <p class="task">I use <code>[3, 7, 2, 10, 5]</code> with <code>map</code>, <code>filter</code>, <code>find</code>, <code>reduce</code> and <code>includes</code>.</p>
+  <div class="out" id="out2"></div>
+  <div class="note">
+    <p>All these methods give me a new value. They never change the old array. That is why my array is still <code>[3, 7, 2, 10, 5]</code> at the end.</p>
+    <p>I think this is important for React: we do not change data, we make new data.</p>
+  </div>
+</section>
+
+<section>
+  <h2>3. Arrays of Objects</h2>
+  <p class="task">Four students: Anna 85, John 62, Sara 91, Mike 55.</p>
+  <div class="out" id="out3"></div>
+  <div class="note">
+    <p><code>filter</code> makes a new array, but the objects inside are the same objects. So if I write <code>student.passed = true</code>, I also change the old data.</p>
+    <p>To be safe I make new objects: <code>{ ...student, passed: true }</code>.</p>
+  </div>
+</section>
+
+<section>
+  <h2>4. Objects</h2>
+  <p class="task">A user with <code>address: { city, street }</code> inside.</p>
+  <div class="out" id="out4"></div>
+  <div class="note">
+    <p>I can take a value from deep inside: <code>const { address: { city } } = user</code>.</p>
+    <p>I can also give it a new name with <code>:</code>. <code>const { name: userName } = user</code>.</p>
+  </div>
+</section>
+
+<section>
+  <h2>5. Values and References</h2>
+  <p class="task">I start with <code>{ name: "Alice", score: 10 }</code> and copy it in different ways.</p>
+  <div class="out" id="out5"></div>
+  <div class="note">
+    <p><code>copy = original</code> does not copy the object. It only copies the address of the object. Both names point to the same box, so both change together.</p>
+    <p>Spread <code>{ ...original }</code> makes a real copy, but only of the top level. Things inside (like <code>address</code>) are still shared. This is called a shallow copy.</p>
+    <p>To fix it, I copy the inside part too: <code>{ ...user, address: { ...user.address } }</code>. Or I use <code>structuredClone(user)</code> for a deep copy.</p>
+  </div>
+</section>
+
+<section>
+  <h2>6. Functions</h2>
+  <p class="task"><code>isEven</code>, <code>getFullName</code>, <code>calculatePrice</code>, <code>calculateDiscount</code>, <code>getMax</code>.</p>
+  <div class="out" id="out6"></div>
+  <div class="note">
+    <p>I wrote <code>isEven</code> two times: as a normal function and as an arrow function. Both give the same answer.</p>
+    <p>The difference: a normal function works even before its line in the file (hoisting) and has its own <code>this</code>. An arrow function does not.</p>
+  </div>
+</section>
+
+<section>
+  <h2>7. Functions as Values</h2>
+  <p class="task"><code>calculate(5, 3, add)</code> gives 8, <code>calculate(5, 3, multiply)</code> gives 15.</p>
+  <div class="out" id="out7"></div>
+  <div class="note">
+    <p>Yes, I can put a function in a variable. In JavaScript a function is just a value.</p>
+    <p>Yes, I can send a function to another function. <code>map</code> and <code>filter</code> work like this.</p>
+    <p><code>add</code> is the function. <code>add()</code> runs it and gives the answer. In React we write <code>onClick={handleClick}</code> without <code>()</code> for the same reason.</p>
+  </div>
+</section>
+
+<section>
+  <h2>8. Scope</h2>
+  <p class="task">The same name <code>message</code> in three places: global, function, block.</p>
+  <div class="out" id="out8"></div>
+  <div class="note">
+    <p><b>Global scope:</b> I can use the variable in the whole file.</p>
+    <p><b>Function scope:</b> only inside the function.</p>
+    <p><b>Block scope:</b> only inside <code>{ }</code>, for example in an <code>if</code>.</p>
+    <p><code>var</code> does not stay in the block, so I can still use it outside. <code>let</code> and <code>const</code> stay inside, and <code>const</code> cannot get a new value. Today we use let and const.</p>
+    <p>When two variables have the same name, the closest one wins. That is why I see "block" and not "global".</p>
+  </div>
+</section>
+
+<section>
+  <h2>9. Closure</h2>
+  <p class="task"><code>createCounter()</code> counts 1, 2, 3. <code>createAdder(5)</code> makes <code>addFive</code>.</p>
+  <div class="out" id="out9"></div>
+  <div class="note">
+    <p>A function remembers the place where it was made. <code>createCounter</code> is already finished, but its <code>count</code> is still alive, because the small function inside still uses it.</p>
+    <p>Every call of <code>createCounter()</code> makes a new place, so the second counter starts from 1 again.</p>
+    <p>For me this looks like <code>useState</code> in React.</p>
+  </div>
+</section>
+
+<section>
+  <h2>10. Destructuring, Spread and Rest</h2>
+  <p class="task"><code>numbers = [10, 20, 30, 40]</code>, <code>user = { id: 1, name: "Anna", age: 21 }</code> and <code>sum(...numbers)</code>.</p>
+  <div class="out" id="out10"></div>
+  <div class="note">
+    <p>Spread and rest look the same (<code>...</code>) but do opposite things.</p>
+    <p><b>Spread</b> opens something I already have: <code>[...numbers, 50]</code>.</p>
+    <p><b>Rest</b> collects many things into one: <code>function sum(...numbers)</code>.</p>
+    <p>Easy rule: in a function's parameters it is rest. Everywhere else it is spread.</p>
+  </div>
+</section>
+
+<section>
+  <h2>11. Optional Chaining and Default Values</h2>
+  <p class="task">Some users have an address, some do not. I test <code>?.</code>, <code>??</code> and <code>||</code>.</p>
+  <div class="out" id="out11"></div>
+  <div class="note">
+    <p><code>user.address.city</code> gives an error when there is no address. <code>user.address?.city</code> gives <code>undefined</code> and does not break the page.</p>
+    <p><code>||</code> changes every falsy value, so <code>0</code>, <code>""</code> and <code>false</code> also become the default text. This can be a bug: a price of 0 looks like "no price".</p>
+    <p><code>??</code> works only with <code>null</code> and <code>undefined</code>, so 0 and "" stay. For default values <code>??</code> is usually better.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Final Task</h2>
+  <p class="task">Five students with a <code>grades</code> array. I build <code>{ id, name, average, passed }</code> for each one.</p>
+  <div class="out" id="outFinal"></div>
+  <div class="note">
+    <p>Every function here only takes data and gives back new data. Nothing changes the old array.</p>
+    <p>At the end I check this: I save the students as text before and after, and compare. The result is "yes", so my data is safe.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>Task 0 JavaScript Refresher · you can also open the console (F12)</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
