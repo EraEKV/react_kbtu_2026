@@ -3,5 +3,5 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/react_kbtu_2026/',
+  base: '/react_kbtu_2026/task-2/',
 })
