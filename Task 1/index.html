@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Runtime and Async</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>JavaScript Runtime &amp; Async</h1>
+
+  <div class="buttons">
+    <button id="runAll">Run All Tasks</button>
+    <button id="eventLoop">Run Event Loop Demo</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Count</th>
+        <th>Time (ms)</th>
+      </tr>
+    </thead>
+    <tbody id="tasks"></tbody>
+  </table>
+
+  <p id="summary"></p>
+  <pre id="output"></pre>
+
+  <script src="script.js"></script>
+</body>
+</html>
