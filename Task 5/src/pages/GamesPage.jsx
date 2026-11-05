@@ -1,9 +1,17 @@
-import { Link, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 import { useGamesList } from '../hooks/useGamesList.js'
 import { GENRES, PAGE_SIZE, PLATFORMS, SORTS, STATUSES } from '../constants.js'
+import Button from '../components/Button.jsx'
 import GameCard from '../components/GameCard.jsx'
 import Pagination from '../components/Pagination.jsx'
-import Loader from '../components/Loader.jsx'
+import SelectField from '../components/SelectField.jsx'
+import SkeletonGrid from '../components/SkeletonGrid.jsx'
+import StatusMessage from '../components/StatusMessage.jsx'
+
+// options for the <SelectField>s; '' means "no filter"
+const genreOptions = [{ value: '', label: 'All genres' }, ...GENRES.map((g) => ({ value: g, label: g }))]
+const statusOptions = [{ value: '', label: 'All statuses' }, ...STATUSES]
+const platformOptions = [{ value: '', label: 'All platforms' }, ...PLATFORMS.map((p) => ({ value: p, label: p }))]
 
 export default function GamesPage() {
   // All filters live in the URL: /games?search=witcher&genre=RPG&page=2
@@ -38,6 +46,7 @@ export default function GamesPage() {
     const next = new URLSearchParams(searchParams)
     next.set('page', newPage)
     setSearchParams(next)
+    window.scrollTo(0, 0)
   }
 
   function resetFilters() {
@@ -48,66 +57,67 @@ export default function GamesPage() {
 
   return (
     <section>
-      <div className="page-head">
+      <div className="games-header">
         <div>
           <h1>Games</h1>
-          {list.status === 'success' && <p className="muted">{list.result.total} games found</p>}
+          <p className="games-count">
+            {list.status === 'success' ? `${list.result.total} games found` : 'Loading library…'}
+          </p>
         </div>
-        <Link to="/games/new" className="btn btn-primary">+ Add game</Link>
+        <Button to="/games/new">+ Add game</Button>
       </div>
 
-      <div className="panel filters">
+      <div className="games-search">
+        <span className="games-search-icon" aria-hidden="true">⌕</span>
         <input
-          className="input search"
           type="search"
+          className="games-search-input"
           placeholder="Search by name or description…"
+          aria-label="Search games"
           value={search}
           onChange={(e) => updateParam('search', e.target.value)}
         />
-        <select className="input" value={genre} onChange={(e) => updateParam('genre', e.target.value)}>
-          <option value="">All genres</option>
-          {GENRES.map((g) => <option key={g} value={g}>{g}</option>)}
-        </select>
-        <select className="input" value={status} onChange={(e) => updateParam('status', e.target.value)}>
-          <option value="">All statuses</option>
-          {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
-        <select className="input" value={platform} onChange={(e) => updateParam('platform', e.target.value)}>
-          <option value="">All platforms</option>
-          {PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
-        <select className="input" value={sort} onChange={(e) => updateParam('sort', e.target.value)}>
-          {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
-        <button className="btn" onClick={resetFilters} disabled={!hasFilters}>
-          Reset
-        </button>
       </div>
 
-      {list.status === 'loading' && <Loader text="Loading games…" />}
+      <div className="games-filters">
+        <div className="games-fields">
+          <SelectField label="Genre" value={genre} options={genreOptions} onChange={(v) => updateParam('genre', v)} />
+          <SelectField label="Status" value={status} options={statusOptions} onChange={(v) => updateParam('status', v)} />
+          <SelectField label="Platform" value={platform} options={platformOptions} onChange={(v) => updateParam('platform', v)} />
+          <SelectField label="Sort by" value={sort} options={SORTS} onChange={(v) => updateParam('sort', v)} />
+        </div>
+        <Button variant="ghost" onClick={resetFilters} disabled={!hasFilters}>
+          Reset
+        </Button>
+      </div>
+
+      {list.status === 'loading' && <SkeletonGrid count={PAGE_SIZE} />}
 
       {list.status === 'error' && (
-        <div className="state state-error">
-          <p>Failed to load games: {list.error}</p>
-          <button className="btn btn-primary" onClick={list.reload}>Try again</button>
-        </div>
+        <StatusMessage tone="error" title="Could not load games" action={<Button onClick={list.reload}>Try again</Button>}>
+          {list.error}
+        </StatusMessage>
       )}
 
       {list.status === 'success' && list.result.data.length === 0 && (
-        <div className="state">
-          <p>No games match your filters.</p>
-          <button className="btn" onClick={resetFilters}>Clear filters</button>
-        </div>
+        <StatusMessage
+          title="No games found"
+          action={<Button variant="ghost" onClick={resetFilters}>Clear filters</Button>}
+        >
+          Try another search or remove some filters.
+        </StatusMessage>
       )}
 
       {list.status === 'success' && list.result.data.length > 0 && (
         <>
-          <div className="card-grid">
+          <ul className="games-grid">
             {list.result.data.map((game) => (
-              <GameCard key={game.id} game={game} />
+              <li key={game.id}>
+                <GameCard game={game} />
+              </li>
             ))}
-          </div>
-          <Pagination page={page} totalPages={list.result.totalPages} onChange={changePage} />
+          </ul>
+          <Pagination page={page} totalPages={list.result.totalPages} onPageChange={changePage} />
         </>
       )}
     </section>

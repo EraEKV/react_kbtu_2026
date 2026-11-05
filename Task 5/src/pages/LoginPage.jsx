@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Button from '../components/Button.jsx'
 
 // Placeholder: real authentication will be added later.
 export default function LoginPage() {
@@ -11,18 +12,24 @@ export default function LoginPage() {
 
   return (
     <section className="login">
-      <form className="panel form login-form" onSubmit={handleSubmit}>
-        <h2>Sign in</h2>
-        <label className="wide">
-          Email
+      <form className="login-card" onSubmit={handleSubmit}>
+        <div className="login-head">
+          <h1>Welcome back</h1>
+          <p>Sign in to sync your game library</p>
+        </div>
+
+        <label className="login-field">
+          <span>Email</span>
           <input type="email" placeholder="you@example.com" required />
         </label>
-        <label className="wide">
-          Password
+        <label className="login-field">
+          <span>Password</span>
           <input type="password" placeholder="••••••••" required />
         </label>
-        <button className="btn btn-primary wide" type="submit">Sign in</button>
-        {submitted && <p className="muted wide">Authentication is not implemented yet. Coming soon!</p>}
+
+        <Button type="submit" className="login-submit">Sign in</Button>
+
+        {submitted && <p className="login-note">Authentication is not implemented yet. Coming soon!</p>}
       </form>
     </section>
   )

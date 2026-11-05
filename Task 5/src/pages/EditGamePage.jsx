@@ -1,8 +1,11 @@
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { useGame } from '../hooks/useGame.js'
 import { updateItem } from '../services/service.js'
+import BackLinks from '../components/BackLinks.jsx'
+import Button from '../components/Button.jsx'
 import GameForm from '../components/GameForm.jsx'
 import Loader from '../components/Loader.jsx'
+import StatusMessage from '../components/StatusMessage.jsx'
 
 export default function EditGamePage() {
   const { id } = useParams()
@@ -19,19 +22,21 @@ export default function EditGamePage() {
 
   if (status === 'notfound') {
     return (
-      <div className="state">
-        <h2>Game not found</h2>
-        <Link to="/games" className="btn">All games</Link>
-      </div>
+      <section>
+        <BackLinks />
+        <StatusMessage title="Game not found" action={<Button to="/games">Browse games</Button>} />
+      </section>
     )
   }
 
   if (status === 'error') {
     return (
-      <div className="state state-error">
-        <p>Failed to load the game: {error}</p>
-        <button className="btn btn-primary" onClick={reload}>Try again</button>
-      </div>
+      <section>
+        <BackLinks />
+        <StatusMessage tone="error" title="Could not load the game" action={<Button onClick={reload}>Try again</Button>}>
+          {error}
+        </StatusMessage>
+      </section>
     )
   }
 

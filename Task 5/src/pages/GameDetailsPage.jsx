@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { useGame } from '../hooks/useGame.js'
 import { deleteItem, updateItem } from '../services/service.js'
-import { statusLabel } from '../constants.js'
+import BackLinks from '../components/BackLinks.jsx'
+import Button from '../components/Button.jsx'
 import Loader from '../components/Loader.jsx'
+import StatusBadge from '../components/StatusBadge.jsx'
+import StatusMessage from '../components/StatusMessage.jsx'
 
 function formatDate(iso) {
   return iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
@@ -49,17 +52,10 @@ export default function GameDetailsPage() {
     }
   }
 
-  const links = (
-    <div className="back-links">
-      <button className="btn" onClick={() => navigate(-1)}>← Back</button>
-      <Link to="/games" className="btn">All games</Link>
-    </div>
-  )
-
   if (status === 'loading') {
     return (
       <section>
-        {links}
+        <BackLinks />
         <Loader text="Loading game…" />
       </section>
     )
@@ -68,11 +64,10 @@ export default function GameDetailsPage() {
   if (status === 'notfound') {
     return (
       <section>
-        {links}
-        <div className="state">
-          <h2>Game not found</h2>
-          <p>There is no game with id “{id}”. It may have been removed.</p>
-        </div>
+        <BackLinks />
+        <StatusMessage title="Game not found" action={<Button to="/games">Browse games</Button>}>
+          There is no game with id “{id}”. It may have been removed.
+        </StatusMessage>
       </section>
     )
   }
@@ -80,68 +75,73 @@ export default function GameDetailsPage() {
   if (status === 'error') {
     return (
       <section>
-        {links}
-        <div className="state state-error">
-          <p>Failed to load the game: {error}</p>
-          <button className="btn btn-primary" onClick={reload}>Try again</button>
-        </div>
+        <BackLinks />
+        <StatusMessage tone="error" title="Could not load the game" action={<Button onClick={reload}>Try again</Button>}>
+          {error}
+        </StatusMessage>
       </section>
     )
   }
 
   const done = game.status === 'completed'
+  const progress = game.progress ?? 0
 
   return (
     <section>
-      {links}
+      <BackLinks />
 
       {notice && (
-        <div className={`notice notice-${notice.type}`}>
+        <div className="details-notice" data-type={notice.type} role="status">
           <span>{notice.text}</span>
-          <button onClick={() => setNotice(null)} aria-label="Dismiss">×</button>
+          <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss">×</button>
         </div>
       )}
 
-      <div className="panel" style={{ '--cover': game.cover ?? '#6c8cff' }}>
-        <div className="details-hero">
-          <span className={`badge badge-${game.status}`}>{statusLabel(game.status)}</span>
-          <h2>{game.name}</h2>
-          <p>{game.description}</p>
-        </div>
-
-        <dl className="fields">
-          <div><dt>Developer</dt><dd>{game.developer || '—'}</dd></div>
-          <div><dt>Release year</dt><dd>{game.releaseYear ?? '—'}</dd></div>
-          <div><dt>Platform</dt><dd>{game.platform ?? '—'}</dd></div>
-          <div><dt>Genre</dt><dd>{game.genre ?? '—'}</dd></div>
-          <div><dt>My rating</dt><dd>{game.rating ?? '—'} / 10</dd></div>
-          <div><dt>Hours played</dt><dd>{game.hoursPlayed ?? 0} h</dd></div>
-          <div><dt>Completed on</dt><dd>{formatDate(game.completedAt)}</dd></div>
-        </dl>
-
-        <div className="progress-block">
-          <div className="progress-label">
-            <span>Progress</span>
-            <span>{game.progress ?? 0}%</span>
+      <article className="details-hero" style={{ '--cover': game.cover ?? '#8b7cff' }}>
+        <div className="details-glow" />
+        <div className="details-content">
+          <div className="details-top">
+            <StatusBadge status={game.status} />
+            {game.rating && <span className="details-rating">★ {game.rating} / 10</span>}
           </div>
-          <div className="progress"><div className="progress-bar" style={{ width: `${game.progress ?? 0}%` }} /></div>
-        </div>
+          <h1 className="details-title">{game.name}</h1>
+          <p className="details-description">{game.description}</p>
 
-        <div className="notes">
-          <h3>Notes</h3>
-          <p>{game.notes || 'No notes yet.'}</p>
-        </div>
+          <dl className="details-facts">
+            <div><dt>Developer</dt><dd>{game.developer || '—'}</dd></div>
+            <div><dt>Release year</dt><dd>{game.releaseYear ?? '—'}</dd></div>
+            <div><dt>Platform</dt><dd>{game.platform ?? '—'}</dd></div>
+            <div><dt>Genre</dt><dd>{game.genre ?? '—'}</dd></div>
+            <div><dt>Hours played</dt><dd>{game.hoursPlayed ?? 0} h</dd></div>
+            <div><dt>Completed on</dt><dd>{formatDate(game.completedAt)}</dd></div>
+          </dl>
 
-        <div className="actions">
-          <button className="btn btn-primary" onClick={handleComplete} disabled={Boolean(busy) || done}>
-            {busy === 'complete' ? 'Completing…' : done ? '✓ Completed' : 'Mark as completed'}
-          </button>
-          <Link to={`/games/${game.id}/edit`} className="btn">Edit</Link>
-          <button className="btn btn-danger" onClick={handleDelete} disabled={Boolean(busy)}>
-            {busy === 'delete' ? 'Removing…' : 'Remove'}
-          </button>
+          <div className="details-progress">
+            <div className="details-progress-label">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="details-track">
+              <div className="details-bar" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+
+          <div className="details-notes">
+            <h2>Notes</h2>
+            <p>{game.notes || 'No notes yet.'}</p>
+          </div>
+
+          <div className="details-actions">
+            <Button onClick={handleComplete} disabled={Boolean(busy) || done}>
+              {busy === 'complete' ? 'Completing…' : done ? '✓ Completed' : 'Mark as completed'}
+            </Button>
+            <Button variant="ghost" to={`/games/${game.id}/edit`}>Edit</Button>
+            <Button variant="danger" onClick={handleDelete} disabled={Boolean(busy)}>
+              {busy === 'delete' ? 'Removing…' : 'Remove'}
+            </Button>
+          </div>
         </div>
-      </div>
+      </article>
     </section>
   )
 }

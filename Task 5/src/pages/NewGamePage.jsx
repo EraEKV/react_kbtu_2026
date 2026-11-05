@@ -13,7 +13,7 @@ export default function NewGamePage() {
     const created = await createItem({ name, description })
 
     try {
-      await updateItem(created.id, { ...rest, progress: 0, completedAt: null, cover: '#6c8cff' })
+      await updateItem(created.id, { ...rest, progress: 0, completedAt: null, cover: '#8b7cff' })
       navigate(`/games/${created.id}`)
     } catch {
       // the game exists but without details, so let the user finish it on the edit page

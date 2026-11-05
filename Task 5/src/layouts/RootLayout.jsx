@@ -5,14 +5,17 @@ import Loader from '../components/Loader.jsx'
 
 export default function RootLayout() {
   return (
-    <div className="app">
+    <div className="layout">
       <NavBar />
-      <main>
+
+      <main className="layout-main">
+        {/* shows the loader while a lazy page is being downloaded */}
         <Suspense fallback={<Loader text="Loading page…" />}>
           <Outlet />
         </Suspense>
       </main>
-      <footer className="footer">Game Vault · KBTU React · Task 5</footer>
+
+      <footer className="layout-footer">Game Vault · KBTU React · Task 5</footer>
     </div>
   )
 }

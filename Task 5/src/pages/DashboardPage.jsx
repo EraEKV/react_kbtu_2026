@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { useGamesList } from '../hooks/useGamesList.js'
 import { GENRES, PLATFORMS, STATUSES } from '../constants.js'
+import Button from '../components/Button.jsx'
 import Loader from '../components/Loader.jsx'
+import SelectField from '../components/SelectField.jsx'
+import StatusMessage from '../components/StatusMessage.jsx'
+
+const platformOptions = [{ value: '', label: 'All platforms' }, ...PLATFORMS.map((p) => ({ value: p, label: p }))]
 
 export default function DashboardPage() {
   // load every game once, then calculate the stats on the client
@@ -13,14 +18,13 @@ export default function DashboardPage() {
 
   if (list.status === 'error') {
     return (
-      <div className="state state-error">
-        <p>Failed to load stats: {list.error}</p>
-        <button className="btn btn-primary" onClick={list.reload}>Try again</button>
-      </div>
+      <StatusMessage tone="error" title="Could not load stats" action={<Button onClick={list.reload}>Try again</Button>}>
+        {list.error}
+      </StatusMessage>
     )
   }
 
-  // the filter affects everything below
+  // the platform filter affects everything below
   const allGames = list.result.data
   const games = platform ? allGames.filter((g) => g.platform === platform) : allGames
 
@@ -45,7 +49,7 @@ export default function DashboardPage() {
   })).filter((row) => row.count > 0)
 
   // ---- lists with links ----
-  const topRated = [...rated].sort((a, b) => b.rating - a.rating).slice(0, 3)
+  const topRated = [...rated].sort((a, b) => b.rating - a.rating).slice(0, 5)
   const playingNow = games.filter((g) => g.status === 'playing')
 
   // link to the games list with the same platform filter
@@ -57,53 +61,58 @@ export default function DashboardPage() {
 
   return (
     <section>
-      <div className="page-head">
+      <div className="dash-header">
         <div>
           <h1>Dashboard</h1>
-          <p className="muted">Stats calculated from your library</p>
+          <p className="dash-subtitle">Stats calculated from your library</p>
         </div>
-        <select className="input" value={platform} onChange={(e) => setPlatform(e.target.value)}>
-          <option value="">All platforms</option>
-          {PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
+        <div className="dash-filter">
+          <SelectField label="Platform" value={platform} options={platformOptions} onChange={setPlatform} />
+        </div>
       </div>
 
-      <div className="stats">
-        <div className="panel stat"><span>Total games</span><strong>{total}</strong></div>
-        <div className="panel stat"><span>Completed</span><strong>{completed} <small>({completedPercent}%)</small></strong></div>
-        <div className="panel stat"><span>Average rating</span><strong>{avgRating}</strong></div>
-        <div className="panel stat"><span>Hours played</span><strong>{totalHours} h</strong></div>
+      <div className="dash-stats">
+        <StatCard label="Total games" value={total} />
+        <StatCard label="Completed" value={completed} hint={`${completedPercent}% of library`} />
+        <StatCard label="Average rating" value={avgRating} hint="out of 10" />
+        <StatCard label="Hours played" value={totalHours} hint="hours in total" />
       </div>
 
       {total === 0 ? (
-        <div className="state"><p>No games on this platform yet.</p></div>
+        <StatusMessage title="No games on this platform" action={<Button variant="ghost" onClick={() => setPlatform('')}>Show all platforms</Button>} />
       ) : (
         <div className="dash-grid">
           <Breakdown title="By status" rows={byStatus} total={total} linkTo={(row) => gamesLink('status', row.value)} />
           <Breakdown title="By genre" rows={byGenre} total={total} linkTo={(row) => gamesLink('genre', row.value)} />
 
-          <div className="panel">
-            <h2 className="panel-title">Top rated</h2>
-            <ul className="link-list">
+          <div className="dash-panel">
+            <h2 className="dash-panel-title">Top rated</h2>
+            <ol className="dash-list">
               {topRated.map((g) => (
                 <li key={g.id}>
-                  <Link to={`/games/${g.id}`}>{g.name}</Link>
-                  <span>★ {g.rating}</span>
+                  <Link to={`/games/${g.id}`}>
+                    <span className="dash-dot" style={{ background: g.cover }} />
+                    {g.name}
+                  </Link>
+                  <span className="dash-star">★ {g.rating}</span>
                 </li>
               ))}
-            </ul>
+            </ol>
           </div>
 
-          <div className="panel">
-            <h2 className="panel-title">Playing now</h2>
+          <div className="dash-panel">
+            <h2 className="dash-panel-title">Playing now</h2>
             {playingNow.length === 0 ? (
-              <p className="muted">Nothing in progress.</p>
+              <p className="dash-empty">Nothing in progress.</p>
             ) : (
-              <ul className="link-list">
+              <ul className="dash-list">
                 {playingNow.map((g) => (
                   <li key={g.id}>
-                    <Link to={`/games/${g.id}`}>{g.name}</Link>
-                    <span>{g.progress ?? 0}%</span>
+                    <Link to={`/games/${g.id}`}>
+                      <span className="dash-dot" style={{ background: g.cover }} />
+                      {g.name}
+                    </Link>
+                    <span className="dash-muted">{g.progress ?? 0}%</span>
                   </li>
                 ))}
               </ul>
@@ -115,19 +124,29 @@ export default function DashboardPage() {
   )
 }
 
+function StatCard({ label, value, hint }) {
+  return (
+    <div className="dash-stat">
+      <span className="dash-stat-label">{label}</span>
+      <strong className="dash-stat-value">{value}</strong>
+      {hint && <span className="dash-stat-hint">{hint}</span>}
+    </div>
+  )
+}
+
 function Breakdown({ title, rows, total, linkTo }) {
   return (
-    <div className="panel">
-      <h2 className="panel-title">{title}</h2>
-      <ul className="bars">
+    <div className="dash-panel">
+      <h2 className="dash-panel-title">{title}</h2>
+      <ul className="dash-bars">
         {rows.map((row) => (
           <li key={row.value}>
-            <Link to={linkTo(row)} className="bar-row">
-              <span className="bar-label">{row.label}</span>
-              <span className="bar-track">
-                <span className="bar-fill" style={{ width: `${(row.count / total) * 100}%` }} />
+            <Link to={linkTo(row)} className="dash-bar-row">
+              <span>{row.label}</span>
+              <span className="dash-track">
+                <span className="dash-fill" style={{ width: `${(row.count / total) * 100}%` }} />
               </span>
-              <span className="bar-count">{row.count}</span>
+              <span className="dash-muted">{row.count}</span>
             </Link>
           </li>
         ))}
