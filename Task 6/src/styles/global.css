@@ -1,0 +1,86 @@
+:root {
+  /* Brand */
+  --accent: #8b7cff;
+  --accent-2: #3ddc97;
+  --gradient: linear-gradient(90deg, #8b7cff, #3ddc97);
+
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #1f2630;
+  --border: #2a313c;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --danger: #f85149;
+  --success: #3fb950;
+
+  /* Game statuses */
+  --backlog: #8b949e;
+  --playing: #58a6ff;
+  --completed: #3fb950;
+  --dropped: #f85149;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --container: 1200px;
+  --gutter: 16px;
+
+  color-scheme: dark;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
