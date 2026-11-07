@@ -3,7 +3,7 @@
 React + React Router app (continuation of Task 5) with TanStack Query caching and Firebase Authentication.
 All previous features are kept: routes, search, filters, sorting, pagination (in the URL), dashboard, create / edit / delete.
 
-- Live: _add the deployed link here_
+- Live: https://routingames.web.app
 - Stack: React 19, React Router 8, TanStack Query 5, Firebase Auth 13, Vite
 
 ## Run locally
@@ -15,9 +15,19 @@ npm run dev
 ```
 
 Firebase setup: create a project → Authentication → Sign-in method → enable **Email/Password** and **Google**
-→ add a Web app and copy its config into `.env.local`. For a deployed site, add its domain in
-Authentication → Settings → Authorized domains, and set the same `VITE_FIREBASE_*` variables in the hosting dashboard.
+→ add a Web app and copy its config into `.env.local`.
 `.env.local` is git-ignored; `.env.example` lists every required variable.
+
+## Deploy (Firebase Hosting)
+
+```bash
+npm run build                                  # env variables from .env.local are baked into the build
+npx firebase-tools deploy --only hosting       # publishes ./dist (see firebase.json)
+```
+
+`firebase.json` rewrites all URLs to `/index.html`, so routes like `/games/3` work after a refresh.
+The `*.web.app` / `*.firebaseapp.com` domains are authorized for sign-in automatically; any custom domain
+must be added in Authentication → Settings → Authorized domains.
 
 ## Routes
 
