@@ -46,7 +46,8 @@ const MESSAGES = {
 
 // Turns a Firebase error into a readable message
 export function getAuthErrorMessage(error) {
-  return MESSAGES[error?.code] ?? 'Something went wrong. Please try again.'
+  if (import.meta.env.DEV) console.error('[auth]', error)
+  return MESSAGES[error?.code] ?? `Something went wrong (${error?.code ?? 'unknown'}). Please try again.`
 }
 
 // the user closed the Google popup: not worth showing an error
